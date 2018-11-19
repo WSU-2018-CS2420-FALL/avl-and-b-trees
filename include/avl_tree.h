@@ -7,10 +7,11 @@
 template <typename T>
 struct Node {
   T info;
+  int height;
   Node *llink;
   Node *rlink;
-  Node(): llink(nullptr), rlink(nullptr) {}
-  Node(T info) : info(info), llink(nullptr), rlink(nullptr) {}
+  Node(int h = 0): height(h), llink(nullptr), rlink(nullptr) {}
+  Node(T info, int h = 0) : info(info), height(h), llink(nullptr), rlink(nullptr) {}
 };
 
 template <typename T>
@@ -20,7 +21,7 @@ public:
   AVLTree(const AVLTree<T> &bt) { copy(root, bt.root); }
 
   int height(const Node<T> *node) const {
-    // TODO
+    return node ? node->height : 0;
   }
 
   const Node<T>* maximum(Node<T>* node) const {
@@ -40,8 +41,51 @@ public:
     balance(node);
   } 
 
+  void single_left_rotate(Node<T>* &node2){
+    Node<T>* node1 = node2->llink;
+    node2->llink = node1->rlink;
+    node1->rlink = node2;
+    node2->height = std::max(height(node2->llink), height(node2->rlink)) + 1;
+    node1->height = std::max(height(node1->llink), height(node2->rlink)) + 1;
+    node2 = node1;
+  }
+
+  void single_right_rotate(Node<T>* &node){
+    Node<T>* node1 = node2->rlink;
+    node2->rlink = node1->llink;
+    node1->llink = node2;
+    node2->height = std::max(height(node2->rlink), height(node2->llink)) + 1;
+    node1->height = std::max(height(node1->rlink), height(node2->llink)) + 1;
+    node2 = node1;
+  }
+
+  void double_left_rotate(Node<T>* &node){
+    single_right_rotate(node->llink);
+    single_left_rotate(node);
+  }
+
+  void double_right_rotate(Node<T>* &node){
+    single_left_rotate(node->rlink);
+    single_right_rotate(node);
+  }
   void balance( Node<T>* &node ) {
-    // TODO
+    if(node){
+      if(height(node->llink) - height(node->rlink) > 1){
+        if(height(node->llink->llink) >= height(node->llink->rlink)){
+          single_left_rotate(node);
+        }else{
+          double_left_rotate(node);
+        }
+      }else if(height(node->rlink) - height(node->llink) > 1){
+        if(height(node->rlink->rlink) >= height(node->rlink->llink)){
+          single_right_rotate(node);
+        }else{
+          double_right_rotate(node);
+        }
+      }
+
+      node->height = std::max(height(node->llink), height(node->rlink)) + 1;
+    }
   }
 
   void remove(T e){ remove(root, e); }

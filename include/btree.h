@@ -4,6 +4,17 @@
 #include <vector>
 #include <sstream>
 
-//TODO
+template <typename T, int order>
+struct BNode {
+    int n;
+    T keys[order - 1];
+    BNode<T, order>* children[order];
+};
 
+template <typename T, int order>
+class BTree {
+
+private:
+    BNode<T, order>* root;
+};
 #endif
